@@ -1,0 +1,374 @@
+
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Clustering Report</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                h1 { color: #2c3e50; }
+                h2 { color: #3498db; }
+                table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                th { background-color: #f2f2f2; }
+                tr:nth-child(even) { background-color: #f9f9f9; }
+                .cluster-section { margin-bottom: 30px; border: 1px solid #ddd; padding: 15px; border-radius: 5px; }
+                .highlight { font-weight: bold; color: #e74c3c; }
+            </style>
+        </head>
+        <body>
+            <h1>Food Products Clustering Report</h1>
+        
+            <h2>Cluster Summary</h2>
+            <table>
+                <tr>
+                    <th>Cluster</th>
+                    <th>Size</th>
+                    <th>Percentage</th>
+                </tr>
+        
+                <tr>
+                    <td>Cluster 0</td>
+                    <td>7802</td>
+                    <td>78.02%</td>
+                </tr>
+            
+                <tr>
+                    <td>Cluster 1</td>
+                    <td>131</td>
+                    <td>1.31%</td>
+                </tr>
+            
+                <tr>
+                    <td>Cluster 2</td>
+                    <td>226</td>
+                    <td>2.26%</td>
+                </tr>
+            
+                <tr>
+                    <td>Cluster 3</td>
+                    <td>17</td>
+                    <td>0.17%</td>
+                </tr>
+            
+                <tr>
+                    <td>Cluster 4</td>
+                    <td>1824</td>
+                    <td>18.24%</td>
+                </tr>
+            
+            </table>
+        
+            <h2>Cluster Centers</h2>
+            <table>
+                <tr>
+                    <th>Cluster</th>
+        <th>energy-kcal</th><th>fat</th><th>carbohydrates</th><th>proteins</th><th>sugars</th>
+                </tr>
+        
+                <tr>
+                    <td>Cluster 0</td>
+            <td>-0.3523</td><td>-0.2557</td><td>-0.3189</td><td>-0.2167</td><td>-0.2327</td>
+                </tr>
+            
+                <tr>
+                    <td>Cluster 1</td>
+            <td>5.6325</td><td>7.2131</td><td>-0.1872</td><td>0.4016</td><td>-0.4027</td>
+                </tr>
+            
+                <tr>
+                    <td>Cluster 2</td>
+            <td>2.3647</td><td>0.1741</td><td>4.0876</td><td>1.0339</td><td>3.6121</td>
+                </tr>
+            
+                <tr>
+                    <td>Cluster 3</td>
+            <td>4.5780</td><td>0.2197</td><td>8.5800</td><td>-0.4026</td><td>13.1783</td>
+                </tr>
+            
+                <tr>
+                    <td>Cluster 4</td>
+            <td>0.7666</td><td>0.5520</td><td>0.7911</td><td>0.7739</td><td>0.4537</td>
+                </tr>
+            
+            </table>
+        
+            <h2>Cluster Details</h2>
+        
+            <div class="cluster-section">
+                <h3>Cluster 0</h3>
+                <p>Size: 7802 products (78.02% of total)</p>
+
+                <h4>Cluster Center:</h4>
+                <table>
+                    <tr>
+            <th>energy-kcal</th><th>fat</th><th>carbohydrates</th><th>proteins</th><th>sugars</th>
+                    </tr>
+                    <tr>
+            <td>-0.3523</td><td>-0.2557</td><td>-0.3189</td><td>-0.2167</td><td>-0.2327</td>
+                    </tr>
+                </table>
+
+                <h4>Sample Products:</h4>
+                <table>
+                    <tr>
+                        <th>Code</th>
+                        <th>Product Name</th>
+            <th>energy-kcal</th><th>fat</th><th>carbohydrates</th><th>proteins</th><th>sugars</th>
+                    </tr>
+            
+                    <tr>
+                        <td>0000101209159</td>
+                        <td>[Row(lang='main', text='Véritable pâte à tartiner noisettes chocolat noir'), Row(lang='fr', text='Véritable pâte à tartiner noisettes chocolat noir')]</td>
+                <td>617.0</td><td>48.0</td><td>36.0</td><td>8.0</td><td>32.0</td>
+                    </tr>
+                
+                    <tr>
+                        <td>0000105000011</td>
+                        <td>[Row(lang='main', text='Chamomile Herbal Tea'), Row(lang='en', text='Chamomile Herbal Tea')]</td>
+                <td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td>
+                    </tr>
+                
+                    <tr>
+                        <td>0000105000042</td>
+                        <td>[Row(lang='main', text="Lagg's, herbal tea, peppermint"), Row(lang='en', text="Lagg's, herbal tea, peppermint")]</td>
+                <td>0.0</td><td>0.0</td><td>1.4700000286102295</td><td>0.0</td><td>0.0</td>
+                    </tr>
+                
+                    <tr>
+                        <td>0000105000059</td>
+                        <td>[Row(lang='main', text='Linden Flowers Tea'), Row(lang='en', text='Linden Flowers Tea')]</td>
+                <td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td>
+                    </tr>
+                
+                    <tr>
+                        <td>0000105000073</td>
+                        <td>[Row(lang='main', text='Herbal Tea, Hibiscus'), Row(lang='en', text='Herbal Tea, Hibiscus')]</td>
+                <td>267.0</td><td>0.0</td><td>60.0</td><td>66.66999816894531</td><td>0.0</td>
+                    </tr>
+                
+                </table>
+            </div>
+            
+            <div class="cluster-section">
+                <h3>Cluster 1</h3>
+                <p>Size: 131 products (1.31% of total)</p>
+
+                <h4>Cluster Center:</h4>
+                <table>
+                    <tr>
+            <th>energy-kcal</th><th>fat</th><th>carbohydrates</th><th>proteins</th><th>sugars</th>
+                    </tr>
+                    <tr>
+            <td>5.6325</td><td>7.2131</td><td>-0.1872</td><td>0.4016</td><td>-0.4027</td>
+                    </tr>
+                </table>
+
+                <h4>Sample Products:</h4>
+                <table>
+                    <tr>
+                        <th>Code</th>
+                        <th>Product Name</th>
+            <th>energy-kcal</th><th>fat</th><th>carbohydrates</th><th>proteins</th><th>sugars</th>
+                    </tr>
+            
+                    <tr>
+                        <td>0000111301201</td>
+                        <td>[Row(lang='main', text='Canola Harvest® Original Vegetable Oil Spread Tub'), Row(lang='en', text='Canola Harvest® Original Vegetable Oil Spread Tub'), Row(lang='la', text='Original Buttery Spread')]</td>
+                <td>4590.0</td><td>510.0</td><td>0.0</td><td>0.0</td><td>0.0</td>
+                    </tr>
+                
+                    <tr>
+                        <td>0005404490105</td>
+                        <td>[Row(lang='main', text='Extra Virgin Olive Oil'), Row(lang='en', text='Extra Virgin Olive Oil')]</td>
+                <td>6430.0</td><td>714.0</td><td>0.0</td><td>0.0</td><td>0.0</td>
+                    </tr>
+                
+                    <tr>
+                        <td>0011110019141</td>
+                        <td>[Row(lang='main', text='Mayonnaise'), Row(lang='en', text='Mayonnaise')]</td>
+                <td>204.0</td><td>561.0</td><td>51.0</td><td>0.0</td><td>0.0</td>
+                    </tr>
+                
+                    <tr>
+                        <td>0011110021274</td>
+                        <td>[Row(lang='main', text='Salad Toppers Roasted & Salted Sunflower Kernels'), Row(lang='en', text='Salad Toppers Roasted & Salted Sunflower Kernels')]</td>
+                <td>1250.0</td><td>625.0</td><td>312.0</td><td>312.0</td><td>0.0</td>
+                    </tr>
+                
+                    <tr>
+                        <td>0011110021281</td>
+                        <td>[Row(lang='main', text='Salad Toppers'), Row(lang='en', text='Salad Toppers')]</td>
+                <td>1250.0</td><td>625.0</td><td>312.0</td><td>312.0</td><td>0.0</td>
+                    </tr>
+                
+                </table>
+            </div>
+            
+            <div class="cluster-section">
+                <h3>Cluster 2</h3>
+                <p>Size: 226 products (2.26% of total)</p>
+
+                <h4>Cluster Center:</h4>
+                <table>
+                    <tr>
+            <th>energy-kcal</th><th>fat</th><th>carbohydrates</th><th>proteins</th><th>sugars</th>
+                    </tr>
+                    <tr>
+            <td>2.3647</td><td>0.1741</td><td>4.0876</td><td>1.0339</td><td>3.6121</td>
+                    </tr>
+                </table>
+
+                <h4>Sample Products:</h4>
+                <table>
+                    <tr>
+                        <th>Code</th>
+                        <th>Product Name</th>
+            <th>energy-kcal</th><th>fat</th><th>carbohydrates</th><th>proteins</th><th>sugars</th>
+                    </tr>
+            
+                    <tr>
+                        <td>0000790420002</td>
+                        <td>[Row(lang='main', text='Red Apple Chips'), Row(lang='en', text='Red Apple Chips')]</td>
+                <td>1720.0</td><td>0.0</td><td>431.0</td><td>0.0</td><td>363.0</td>
+                    </tr>
+                
+                    <tr>
+                        <td>0000790440017</td>
+                        <td>[Row(lang='main', text='Red Apple Chips'), Row(lang='en', text='Red Apple Chips')]</td>
+                <td>1330.0</td><td>0.0</td><td>332.0</td><td>0.0</td><td>281.0</td>
+                    </tr>
+                
+                    <tr>
+                        <td>0000790440024</td>
+                        <td>[Row(lang='main', text='Golden Apple Chips'), Row(lang='en', text='Golden Apple Chips')]</td>
+                <td>1330.0</td><td>0.0</td><td>332.0</td><td>0.0</td><td>281.0</td>
+                    </tr>
+                
+                    <tr>
+                        <td>0000790440031</td>
+                        <td>[Row(lang='main', text='Green Apple Chips'), Row(lang='en', text='Green Apple Chips')]</td>
+                <td>1330.0</td><td>0.0</td><td>332.0</td><td>0.0</td><td>281.0</td>
+                    </tr>
+                
+                    <tr>
+                        <td>0000835766317</td>
+                        <td>[Row(lang='main', text='Creamed Honey'), Row(lang='en', text='Creamed Honey')]</td>
+                <td>1540.0</td><td>0.0</td><td>385.0</td><td>0.0</td><td>363.0</td>
+                    </tr>
+                
+                </table>
+            </div>
+            
+            <div class="cluster-section">
+                <h3>Cluster 3</h3>
+                <p>Size: 17 products (0.17% of total)</p>
+
+                <h4>Cluster Center:</h4>
+                <table>
+                    <tr>
+            <th>energy-kcal</th><th>fat</th><th>carbohydrates</th><th>proteins</th><th>sugars</th>
+                    </tr>
+                    <tr>
+            <td>4.5780</td><td>0.2197</td><td>8.5800</td><td>-0.4026</td><td>13.1783</td>
+                    </tr>
+                </table>
+
+                <h4>Sample Products:</h4>
+                <table>
+                    <tr>
+                        <th>Code</th>
+                        <th>Product Name</th>
+            <th>energy-kcal</th><th>fat</th><th>carbohydrates</th><th>proteins</th><th>sugars</th>
+                    </tr>
+            
+                    <tr>
+                        <td>0000835766560</td>
+                        <td>[Row(lang='main', text='Minis Creamed Honey With Cinnamon'), Row(lang='en', text='Minis Creamed Honey With Cinnamon')]</td>
+                <td>3600.0</td><td>0.0</td><td>900.0</td><td>0.0</td><td>800.0</td>
+                    </tr>
+                
+                    <tr>
+                        <td>0000835766577</td>
+                        <td>[Row(lang='main', text='Creamed Honey With Lemon'), Row(lang='en', text='Creamed Honey With Lemon')]</td>
+                <td>3600.0</td><td>0.0</td><td>900.0</td><td>0.0</td><td>800.0</td>
+                    </tr>
+                
+                    <tr>
+                        <td>0000835766584</td>
+                        <td>[Row(lang='main', text='Creamed Honey With Raspberry'), Row(lang='en', text='Creamed Honey With Raspberry')]</td>
+                <td>3600.0</td><td>0.0</td><td>900.0</td><td>0.0</td><td>800.0</td>
+                    </tr>
+                
+                    <tr>
+                        <td>0000835766614</td>
+                        <td>[Row(lang='main', text='Minis Candy'), Row(lang='en', text='Minis Candy')]</td>
+                <td>3600.0</td><td>0.0</td><td>900.0</td><td>0.0</td><td>800.0</td>
+                    </tr>
+                
+                    <tr>
+                        <td>0008274123456</td>
+                        <td>[Row(lang='main', text='Crystallized Ginger Candy'), Row(lang='en', text='Crystallized Ginger Candy')]</td>
+                <td>3600.0</td><td>0.0</td><td>900.0</td><td>0.0</td><td>900.0</td>
+                    </tr>
+                
+                </table>
+            </div>
+            
+            <div class="cluster-section">
+                <h3>Cluster 4</h3>
+                <p>Size: 1824 products (18.24% of total)</p>
+
+                <h4>Cluster Center:</h4>
+                <table>
+                    <tr>
+            <th>energy-kcal</th><th>fat</th><th>carbohydrates</th><th>proteins</th><th>sugars</th>
+                    </tr>
+                    <tr>
+            <td>0.7666</td><td>0.5520</td><td>0.7911</td><td>0.7739</td><td>0.4537</td>
+                    </tr>
+                </table>
+
+                <h4>Sample Products:</h4>
+                <table>
+                    <tr>
+                        <th>Code</th>
+                        <th>Product Name</th>
+            <th>energy-kcal</th><th>fat</th><th>carbohydrates</th><th>proteins</th><th>sugars</th>
+                    </tr>
+            
+                    <tr>
+                        <td>0000417011002</td>
+                        <td>[Row(lang='main', text='Knusperflakes Mit Knusprigen Cornflakes'), Row(lang='en', text='Knusperflakes Mit Knusprigen Cornflakes')]</td>
+                <td>960.0</td><td>112.0</td><td>240.0</td><td>32.0</td><td>198.0</td>
+                    </tr>
+                
+                    <tr>
+                        <td>0000417296003</td>
+                        <td>[Row(lang='main', text='Milk Chocolate With Caramelized Almonds'), Row(lang='en', text='Milk Chocolate With Caramelized Almonds')]</td>
+                <td>915.0</td><td>125.0</td><td>229.0</td><td>28.799999237060547</td><td>224.0</td>
+                    </tr>
+                
+                    <tr>
+                        <td>0000433821494</td>
+                        <td>[Row(lang='main', text='Oatmeal Raisin Cookies'), Row(lang='en', text='Oatmeal Raisin Cookies')]</td>
+                <td>969.0</td><td>76.5</td><td>242.0</td><td>25.5</td><td>102.0</td>
+                    </tr>
+                
+                    <tr>
+                        <td>0000433821500</td>
+                        <td>[Row(lang='main', text='The Best Peanut Butter Cookies'), Row(lang='en', text='The Best Peanut Butter Cookies')]</td>
+                <td>969.0</td><td>76.5</td><td>242.0</td><td>25.5</td><td>102.0</td>
+                    </tr>
+                
+                    <tr>
+                        <td>0000433906030</td>
+                        <td>[Row(lang='main', text='Best Ginger Snap Cookies'), Row(lang='en', text='Best Ginger Snap Cookies')]</td>
+                <td>588.0</td><td>51.900001525878906</td><td>147.0</td><td>8.649999618530273</td><td>51.900001525878906</td>
+                    </tr>
+                
+                </table>
+            </div>
+            
+        </body>
+        </html>
+        
