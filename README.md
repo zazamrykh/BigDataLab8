@@ -198,3 +198,43 @@ The clustering results are saved in:
 - Interactive visualization dashboard
 - Real-time clustering with streaming data
 - Authentication and authorization for API access
+
+docker compose down -v
+docker compose build
+docker compose up -d
+
+Test with sample data
+After all containers up
+docker compose up -d
+
+send request
+curl -X 'POST' \
+  'http://localhost:8000/cluster' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "use_sample_data": true
+}'
+
+or send it trhough http://localhost:8000/docs#/Clustering/cluster_data_cluster_post
+then chek logs and check tables
+
+docker exec -it food-clustering-app /bin/bash
+sqlcmd -S mssql -U sa -P 'YourStrong@Passw0rd'
+-- Переключаемся на нужную базу
+USE food_clustering;
+GO
+
+-- Посмотреть продукты
+SELECT * FROM food_products;
+GO
+
+-- Посмотреть результаты кластеризации
+SELECT * FROM clustering_results;
+GO
+
+-- Посмотреть центры кластеров
+SELECT * FROM cluster_centers;
+GO
+
+thats it

@@ -8,7 +8,7 @@ from typing import Dict, List, Optional
 # Add the project root directory to Python path
 sys.path.insert(0, os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
 
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Body
 from pyspark.sql import SparkSession
 
 from src.api.models import ClusteringRequest, ClusteringResponse, HealthResponse
@@ -182,6 +182,50 @@ async def cluster_data(
 
     except Exception as e:
         logger.error(f"Error in clustering: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/add_real_data", tags=["Data"])
+async def add_real_data(
+    num_rows: int = Body(10, description="Number of rows to insert from food.parquet"),
+    spark: SparkSession = Depends(get_spark)
+):
+    """
+    Add a small batch of real data from food.parquet into MS SQL Server.
+    Preprocesses columns to match 'food_products' table.
+    """
+    try:
+        data_loader = DataLoader(spark)
+        parquet_path = os.path.join(data_loader.data_dir, "food.parquet")
+        if not os.path.exists(parquet_path):
+            raise HTTPException(status_code=404, detail=f"{parquet_path} not found")
+
+        logger.info(f"Loading {num_rows} rows from {parquet_path}")
+        df_full = data_loader.load_data(filepath=parquet_path)
+
+        logger.info(f"Initial DataFrame columns: {df_full.columns}")
+        logger.info(f"Sample data:")
+        df_full.show(5, truncate=False)
+
+        # --- Preprocess ---
+        preprocessor = DataPreprocessor()
+        df_preprocessed = preprocessor.preprocess_data(df_full)
+
+        # Ограничиваем количество строк для вставки
+        df_batch = df_preprocessed.limit(num_rows)
+
+        logger.info(f"DataFrame ready for insertion. Columns: {df_batch.columns}")
+        df_batch.show(5, truncate=False)
+
+        # --- Insert into SQL ---
+        data_saver = DataSaver(spark)
+        inserted_count = data_saver.insert_food_products(df_batch)
+
+        logger.info(f"Successfully inserted {inserted_count} rows into food_products")
+
+        return {"success": True, "inserted_rows": inserted_count}
+
+    except Exception as e:
+        logger.error(f"Error inserting real data: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 

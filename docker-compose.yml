@@ -9,10 +9,12 @@ services:
       - .env
     environment:
       - ACCEPT_EULA=Y
+      - SA_PASSWORD=${DB_PASSWORD}   # используем переменную из .env
     ports:
       - "1433:1433"
     volumes:
-      - mssql-data:/var/opt/mssql
+      - mssql-data:/var/opt/mssql          # данные MSSQL
+      - ./scripts/mssql:/docker-entrypoint-initdb.d   # скрипты инициализации
     networks:
       - food-clustering-network
     healthcheck:
@@ -21,27 +23,26 @@ services:
       timeout: 5s
       retries: 5
 
-  # Инициализация базы данных
   mssql-init:
     image: mcr.microsoft.com/mssql-tools
+    container_name: food-clustering-mssql-init
     depends_on:
-      mssql:
-        condition: service_healthy
+      - mssql
+    environment:
+      - SA_PASSWORD=${DB_PASSWORD}
     volumes:
       - ./scripts/mssql:/scripts
-    env_file:
-      - .env
     entrypoint: >
-      sh -c "
+      bash -c "
         echo 'Waiting for MSSQL...'
-        until /opt/mssql-tools/bin/sqlcmd -S mssql -U sa -P $$MSSQL_SA_PASSWORD -Q 'SELECT 1' &>/dev/null; do
+        until /opt/mssql-tools/bin/sqlcmd -S mssql -U sa -P $$SA_PASSWORD -Q 'SELECT 1' &>/dev/null; do
           echo 'MSSQL not ready yet...'
           sleep 5
         done
         echo 'MSSQL is ready, running scripts'
-        /opt/mssql-tools/bin/sqlcmd -S mssql -U sa -P $$MSSQL_SA_PASSWORD -i /scripts/01_create_database.sql
-        /opt/mssql-tools/bin/sqlcmd -S mssql -U sa -P $$MSSQL_SA_PASSWORD -i /scripts/02_create_tables.sql
-        /opt/mssql-tools/bin/sqlcmd -S mssql -U sa -P $$MSSQL_SA_PASSWORD -i /scripts/03_insert_test_data.sql
+        /opt/mssql-tools/bin/sqlcmd -S mssql -U sa -P $$SA_PASSWORD -i /scripts/01_create_database.sql
+        /opt/mssql-tools/bin/sqlcmd -S mssql -U sa -P $$SA_PASSWORD -i /scripts/02_create_tables.sql
+        /opt/mssql-tools/bin/sqlcmd -S mssql -U sa -P $$SA_PASSWORD -i /scripts/03_insert_test_data.sql
       "
     networks:
       - food-clustering-network
@@ -53,22 +54,21 @@ services:
       dockerfile: docker/Dockerfile
     container_name: food-clustering-app
     depends_on:
-      - mssql-init
+      - mssql
     ports:
-      - "8000:8000"   # проброс порта на хост
+      - "8000:8000"
     volumes:
       - ./model:/app/model
     env_file:
       - .env
     environment:
-      - MSSQL_SERVER=mssql        # <- имя сервиса MS SQL из docker-compose
+      - MSSQL_SERVER=mssql
       - MSSQL_PORT=1433
       - MSSQL_DATABASE=${DB_NAME}
       - MSSQL_USERNAME=${DB_USER}
       - MSSQL_PASSWORD=${DB_PASSWORD}
     networks:
       - food-clustering-network
-
 
 networks:
   food-clustering-network:

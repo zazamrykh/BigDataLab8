@@ -13,6 +13,3 @@ BEGIN
     PRINT 'DB food_clustering already exists.';
 END
 
--- Переключаемся на созданную базу данных
-USE food_clustering;
-GO

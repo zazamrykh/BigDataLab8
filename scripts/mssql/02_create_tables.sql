@@ -1,11 +1,10 @@
 -- Скрипт для создания таблиц в базе данных food_clustering
 -- Этот скрипт выполняется после создания базы данных
 
--- Переключаемся на базу данных food_clustering
 USE food_clustering;
 GO
 
--- Создаем таблицу для хранения исходных данных о продуктах
+-- Таблица food_products
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'food_products')
 BEGIN
     CREATE TABLE food_products (
@@ -26,24 +25,24 @@ BEGIN
     PRINT 'Table food_products already existing.';
 END
 
--- Создаем таблицу для хранения результатов кластеризации
+-- Таблица clustering_results без foreign key
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'clustering_results')
 BEGIN
     CREATE TABLE clustering_results (
         id INT IDENTITY(1,1) PRIMARY KEY,
         product_id INT NOT NULL,
         cluster_id INT NOT NULL,
-        created_at DATETIME DEFAULT GETDATE(),
-        FOREIGN KEY (product_id) REFERENCES food_products(id)
+        created_at DATETIME DEFAULT GETDATE()
+        -- FOREIGN KEY удалён
     );
-    PRINT 'Table clustering_results успешно создана.';
+    PRINT 'Table clustering_results successfully created (without foreign key).';
 END
 ELSE
 BEGIN
     PRINT 'Table clustering_results already exists.';
 END
 
--- Создаем таблицу для хранения центров кластеров
+-- Таблица cluster_centers
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'cluster_centers')
 BEGIN
     CREATE TABLE cluster_centers (
@@ -57,10 +56,10 @@ BEGIN
 END
 ELSE
 BEGIN
-    PRINT 'table cluster_centersalready exists.';
+    PRINT 'table cluster_centers already exists.';
 END
 
--- Создаем индексы для ускорения запросов
+-- Индексы
 IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_food_products_code')
 BEGIN
     CREATE INDEX IX_food_products_code ON food_products(code);
