@@ -1,0 +1,78 @@
+version: "3.9"
+
+services:
+  # MS SQL Server
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: food-clustering-mssql
+    env_file:
+      - .env
+    environment:
+      - ACCEPT_EULA=Y
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+    networks:
+      - food-clustering-network
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/localhost/1433"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Инициализация базы данных
+  mssql-init:
+    image: mcr.microsoft.com/mssql-tools
+    depends_on:
+      mssql:
+        condition: service_healthy
+    volumes:
+      - ./scripts/mssql:/scripts
+    env_file:
+      - .env
+    entrypoint: >
+      sh -c "
+        echo 'Waiting for MSSQL...'
+        until /opt/mssql-tools/bin/sqlcmd -S mssql -U sa -P $$MSSQL_SA_PASSWORD -Q 'SELECT 1' &>/dev/null; do
+          echo 'MSSQL not ready yet...'
+          sleep 5
+        done
+        echo 'MSSQL is ready, running scripts'
+        /opt/mssql-tools/bin/sqlcmd -S mssql -U sa -P $$MSSQL_SA_PASSWORD -i /scripts/01_create_database.sql
+        /opt/mssql-tools/bin/sqlcmd -S mssql -U sa -P $$MSSQL_SA_PASSWORD -i /scripts/02_create_tables.sql
+        /opt/mssql-tools/bin/sqlcmd -S mssql -U sa -P $$MSSQL_SA_PASSWORD -i /scripts/03_insert_test_data.sql
+      "
+    networks:
+      - food-clustering-network
+
+  # Приложение FastAPI
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: food-clustering-app
+    depends_on:
+      - mssql-init
+    ports:
+      - "8000:8000"   # проброс порта на хост
+    volumes:
+      - ./model:/app/model
+    env_file:
+      - .env
+    environment:
+      - MSSQL_SERVER=mssql        # <- имя сервиса MS SQL из docker-compose
+      - MSSQL_PORT=1433
+      - MSSQL_DATABASE=${DB_NAME}
+      - MSSQL_USERNAME=${DB_USER}
+      - MSSQL_PASSWORD=${DB_PASSWORD}
+    networks:
+      - food-clustering-network
+
+
+networks:
+  food-clustering-network:
+    driver: bridge
+
+volumes:
+  mssql-data:

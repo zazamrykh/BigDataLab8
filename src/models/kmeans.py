@@ -17,14 +17,14 @@ class KMeansClusterer:
     """
     Class for K-means clustering model.
     """
-    def __init__(self):
+    def __init__(self, model=None):
         """
         Initialize K-means clusterer.
         """
         self.n_clusters = config.getint('MODEL', 'n_clusters')
         self.max_iterations = config.getint('MODEL', 'max_iterations')
         self.random_seed = config.getint('DEFAULT', 'random_seed')
-        self.model = None
+        self.model = model
 
     def train(self, df: DataFrame) -> KMeansModel:
         """

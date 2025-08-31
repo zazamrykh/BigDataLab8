@@ -3,7 +3,7 @@ Module for loading data from OpenFoodFacts.
 """
 import os
 import urllib.request
-from typing import Optional
+from typing import Optional, Dict
 
 import pandas as pd
 from pyspark.sql import DataFrame, SparkSession
@@ -28,6 +28,16 @@ class DataLoader:
         self.data_dir = config.get('DATA', 'data_dir')
         self.sample_size = config.getint('DATA', 'sample_size')
         self.data_format = config.get('DATA', 'data_format', fallback='parquet')
+
+        # MS SQL Server settings
+        self.mssql_server = config.get('MSSQL', 'server')
+        self.mssql_port = config.get('MSSQL', 'port')
+        self.mssql_database = config.get('MSSQL', 'database')
+        self.mssql_username = config.get('MSSQL', 'username')
+        self.mssql_password = config.get('MSSQL', 'password')
+        self.mssql_driver = config.get('MSSQL', 'driver')
+        self.mssql_input_table = config.get('MSSQL', 'input_table')
+        self.mssql_output_table = config.get('MSSQL', 'output_table')
 
         # Create data directory if it doesn't exist
         if not os.path.exists(self.data_dir):
@@ -144,31 +154,75 @@ class DataLoader:
             logger.error(f"Error loading data: {e}")
             raise
 
+    def load_data_from_mssql(self) -> DataFrame:
+        """
+        Load data from MS SQL Server.
+
+        Returns:
+            Spark DataFrame with data from MS SQL Server.
+        """
+        logger.info(f"Loading data from MS SQL Server: {self.mssql_server}:{self.mssql_port}/{self.mssql_database}")
+
+        try:
+            # Формируем URL для подключения к MS SQL Server
+            # jdbc_url = f"jdbc:sqlserver://{self.mssql_server}:{self.mssql_port};databaseName={self.mssql_database}"
+            jdbc_url = f"jdbc:sqlserver://{self.mssql_server}:{self.mssql_port};databaseName={self.mssql_database};encrypt=false;trustServerCertificate=true"
+
+            # Настройки подключения
+            connection_properties = {
+                "user": self.mssql_username,
+                "password": self.mssql_password,
+                "driver": self.mssql_driver
+            }
+
+            # Загружаем данные из таблицы
+            df = self.spark.read \
+                .jdbc(url=jdbc_url,
+                      table=self.mssql_input_table,
+                      properties=connection_properties)
+
+            # Выводим схему данных
+            logger.info("DataFrame schema (loaded from MS SQL Server):")
+            df.printSchema()
+            logger.info(f"DataFrame columns: {df.columns[:50]}")
+
+            # Подсчитываем количество записей
+            try:
+                cnt = df.count()
+                logger.info(f"Data successfully loaded from MS SQL Server: {cnt} records")
+            except Exception:
+                logger.info("Skipping df.count() because it may be expensive for large datasets")
+
+            return df
+
+        except Exception as e:
+            logger.error(f"Error loading data from MS SQL Server: {e}")
+            raise
 
     def load_sample_data(self) -> DataFrame:
         """
-        Load a small sample of data for testing.
-
+        Load a small sample of data for testing, names match config.
         Returns:
             Spark DataFrame with sample data.
         """
         logger.info("Loading test sample data...")
 
-        # Instead of using nested dictionaries, create a flattened structure
-        # with individual nutriment columns
+        # Используем имена признаков из конфига
+        from src.utils.config import config
+        features = [f.strip() for f in config.getlist("FEATURES", "nutriment_features")]
+
         data = [
-            {"code": "1", "product_name": "Test Product 1", "energy_100g": 100.0, "fat_100g": 5.0, "carbohydrates_100g": 10.0, "proteins_100g": 2.0, "sugars_100g": 5.0, "fiber_100g": 1.0, "salt_100g": 0.1},
-            {"code": "2", "product_name": "Test Product 2", "energy_100g": 200.0, "fat_100g": 10.0, "carbohydrates_100g": 20.0, "proteins_100g": 5.0, "sugars_100g": 10.0, "fiber_100g": 2.0, "salt_100g": 0.2},
-            {"code": "3", "product_name": "Test Product 3", "energy_100g": 300.0, "fat_100g": 15.0, "carbohydrates_100g": 30.0, "proteins_100g": 10.0, "sugars_100g": 15.0, "fiber_100g": 3.0, "salt_100g": 0.3},
-            {"code": "4", "product_name": "Test Product 4", "energy_100g": 400.0, "fat_100g": 20.0, "carbohydrates_100g": 40.0, "proteins_100g": 15.0, "sugars_100g": 20.0, "fiber_100g": 4.0, "salt_100g": 0.4},
-            {"code": "5", "product_name": "Test Product 5", "energy_100g": 500.0, "fat_100g": 25.0, "carbohydrates_100g": 50.0, "proteins_100g": 20.0, "sugars_100g": 25.0, "fiber_100g": 5.0, "salt_100g": 0.5}
+            {"code": "1", "product_name": "Test Product 1", **{features[0]: 100.0, features[1]: 5.0, features[2]: 10.0, features[3]: 2.0, features[4]: 5.0}},
+            {"code": "2", "product_name": "Test Product 2", **{features[0]: 200.0, features[1]: 10.0, features[2]: 20.0, features[3]: 5.0, features[4]: 10.0}},
+            {"code": "3", "product_name": "Test Product 3", **{features[0]: 300.0, features[1]: 15.0, features[2]: 30.0, features[3]: 10.0, features[4]: 15.0}},
+            {"code": "4", "product_name": "Test Product 4", **{features[0]: 400.0, features[1]: 20.0, features[2]: 40.0, features[3]: 15.0, features[4]: 20.0}},
+            {"code": "5", "product_name": "Test Product 5", **{features[0]: 500.0, features[1]: 25.0, features[2]: 50.0, features[3]: 20.0, features[4]: 25.0}},
         ]
 
-        # Create Pandas DataFrame
+        import pandas as pd
         pdf = pd.DataFrame(data)
 
-        # Convert to Spark DataFrame with explicit schema
+        # Преобразуем в Spark DataFrame
         df = self.spark.createDataFrame(pdf)
-
         logger.info(f"Test sample data successfully loaded: {df.count()} records")
         return df

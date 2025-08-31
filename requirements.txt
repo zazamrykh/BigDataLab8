@@ -7,9 +7,21 @@ numpy==2.3.2
 matplotlib==3.10.5
 pyarrow==21.0.0
 
+# Database dependencies
+pyodbc==5.2.0
+pymssql==2.3.7
+sqlalchemy==2.0.43
+
+# API dependencies
+fastapi==0.116.1
+uvicorn==0.35.0
+pydantic==2.11.7
+
 # Testing dependencies
 pytest==8.4.1
 pytest-cov==6.2.1
+httpx==0.28.1
 
 # Utilities
 configparser==7.2.0
+python-dotenv==1.1.1

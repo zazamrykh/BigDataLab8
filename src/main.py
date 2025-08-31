@@ -185,24 +185,33 @@ def save_model(model_path: str = "model") -> None:
     """
     logger.info(f"Saving model to {model_path}")
 
-    # Create model directory if it doesn't exist
-    if not os.path.exists(model_path):
-        os.makedirs(model_path)
+    # Создаём Spark-сессию
+    spark = create_spark_session()
 
-    # Run clustering pipeline
-    results = run_clustering_pipeline()
+    try:
+        # Запускаем пайплайн (он вернёт модель и результаты)
+        results = run_clustering_pipeline()
 
-    # Save model
-    model = results["model"]
-    model.save(os.path.join(model_path, "kmeans_model"))
+        # Создаём директорию для модели, если её нет
+        if not os.path.exists(model_path):
+            os.makedirs(model_path)
 
-    # Save model metadata
-    with open(os.path.join(model_path, "metadata.txt"), "w") as f:
-        f.write(f"Silhouette Score: {results['silhouette']}\n")
-        f.write(f"Number of Clusters: {len(results['cluster_centers'])}\n")
-        f.write(f"Cluster Sizes: {results['cluster_sizes']}\n")
+        # Сохраняем модель
+        model = results["model"]
+        model.save(os.path.join(model_path, "kmeans_model"))
 
-    logger.info(f"Model saved to {model_path}")
+        # Сохраняем метаданные модели
+        with open(os.path.join(model_path, "metadata.txt"), "w") as f:
+            f.write(f"Silhouette Score: {results['silhouette']}\n")
+            f.write(f"Number of Clusters: {len(results['cluster_centers'])}\n")
+            f.write(f"Cluster Sizes: {results['cluster_sizes']}\n")
+
+        logger.info(f"Model saved to {model_path}")
+
+    finally:
+        # Закрываем Spark только здесь
+        logger.info("Stopping Spark session after saving model")
+        spark.stop()
 
 
 def main() -> None:

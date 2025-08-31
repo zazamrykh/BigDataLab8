@@ -4,118 +4,73 @@ Module for working with project configuration.
 import configparser
 import os
 from typing import Any, Dict, List, Optional
+from dotenv import load_dotenv
+
+# Загружаем .env
+load_dotenv()
+
+
+class EnvInterpolation(configparser.ExtendedInterpolation):
+    """
+    Custom interpolation that first tries to get value from environment variables.
+    """
+
+    def before_get(self, parser, section, option, value, defaults):
+        # Если значение в формате ${VAR}, ищем его в окружении
+        import re
+
+        pattern = re.compile(r"\$\{([^}]+)\}")
+        matches = pattern.findall(value)
+        for match in matches:
+            env_val = os.getenv(match)
+            if env_val is not None:
+                value = value.replace(f"${{{match}}}", env_val)
+        return super().before_get(parser, section, option, value, defaults)
 
 
 class Config:
     """
     Class for working with project configuration.
     """
-    def __init__(self, config_path: str = 'config.ini'):
-        """
-        Initialize configuration.
 
-        Args:
-            config_path: Path to the configuration file.
-        """
+    def __init__(self, config_path: str = "config.ini"):
         self.config_path = config_path
-        self.config = configparser.ConfigParser()
-
+        self.config = configparser.ConfigParser(interpolation=EnvInterpolation())
         if not os.path.exists(config_path):
             raise FileNotFoundError(f"Configuration file not found: {config_path}")
-
         self.config.read(config_path)
 
     def get(self, section: str, option: str, fallback: Any = None) -> Any:
-        """
-        Get value from configuration.
-
-        Args:
-            section: Configuration section.
-            option: Configuration option.
-            fallback: Default value if option is not found.
-
-        Returns:
-            Option value.
-        """
-        return self.config.get(section, option, fallback=fallback)
+        try:
+            return self.config.get(section, option, fallback=fallback)
+        except Exception:
+            return fallback
 
     def getint(self, section: str, option: str, fallback: Optional[int] = None) -> int:
-        """
-        Get integer value from configuration.
-
-        Args:
-            section: Configuration section.
-            option: Configuration option.
-            fallback: Default value if option is not found.
-
-        Returns:
-            Integer value of the option.
-        """
-        return self.config.getint(section, option, fallback=fallback)
+        val = self.get(section, option, fallback)
+        return int(val) if val is not None else fallback
 
     def getfloat(self, section: str, option: str, fallback: Optional[float] = None) -> float:
-        """
-        Get float value from configuration.
-
-        Args:
-            section: Configuration section.
-            option: Configuration option.
-            fallback: Default value if option is not found.
-
-        Returns:
-            Float value of the option.
-        """
-        return self.config.getfloat(section, option, fallback=fallback)
+        val = self.get(section, option, fallback)
+        return float(val) if val is not None else fallback
 
     def getboolean(self, section: str, option: str, fallback: Optional[bool] = None) -> bool:
-        """
-        Get boolean value from configuration.
+        val = self.get(section, option, fallback)
+        if isinstance(val, bool):
+            return val
+        return str(val).lower() in ("true", "1", "yes")
 
-        Args:
-            section: Configuration section.
-            option: Configuration option.
-            fallback: Default value if option is not found.
-
-        Returns:
-            Boolean value of the option.
-        """
-        return self.config.getboolean(section, option, fallback=fallback)
-
-    def getlist(self, section: str, option: str, fallback: Optional[List] = None,
-                delimiter: str = ',') -> List:
-        """
-        Get list of values from configuration.
-
-        Args:
-            section: Configuration section.
-            option: Configuration option.
-            fallback: Default value if option is not found.
-            delimiter: List elements delimiter.
-
-        Returns:
-            List of values.
-        """
-        value = self.get(section, option)
-        if value is None:
+    def getlist(self, section: str, option: str, fallback: Optional[List] = None, delimiter: str = ",") -> List:
+        val = self.get(section, option, fallback)
+        if val is None:
             return fallback if fallback is not None else []
-
-        return [item.strip() for item in value.split(delimiter)]
+        return [item.strip() for item in str(val).split(delimiter)]
 
     def get_all_section(self, section: str) -> Dict[str, str]:
-        """
-        Get all options from a section.
-
-        Args:
-            section: Configuration section.
-
-        Returns:
-            Dictionary with options and their values.
-        """
         if not self.config.has_section(section):
             return {}
+        return {k: self.get(section, k) for k in self.config[section]}
 
-        return dict(self.config[section])
 
-
-# Create a global configuration instance
+# глобальный экземпляр
 config = Config()
