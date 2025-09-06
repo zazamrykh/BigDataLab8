@@ -1,0 +1,51 @@
+FROM sbtscala/scala-sbt:eclipse-temurin-jammy-17.0.9_9_1.9.8_2.13.12
+
+# Установка Apache Spark
+ENV SPARK_VERSION=4.0.0
+ENV HADOOP_VERSION=3
+ENV SPARK_HOME=/opt/spark
+
+RUN curl -sL "https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz" | tar -xz -C /opt/ \
+    && mv /opt/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION} ${SPARK_HOME} \
+    && ln -s ${SPARK_HOME}/bin/spark-submit /usr/local/bin/spark-submit
+
+ENV PATH="${SPARK_HOME}/bin:${PATH}"
+
+# Рабочая директория
+WORKDIR /app
+
+# Установка системных зависимостей
+RUN apt-get update -o Acquire::Check-Valid-Until=false -o Acquire::Check-Date=false \
+    && apt-get install -y --no-install-recommends \
+       unixodbc \
+       unixodbc-dev \
+       curl \
+       gnupg \
+       ca-certificates \
+       apt-transport-https \
+    && rm -rf /var/lib/apt/lists/*
+
+# Настройка Microsoft репозитория для ODBC и mssql-tools
+RUN curl -sSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg \
+    && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft-prod.gpg] https://packages.microsoft.com/debian/12/prod bookworm main" \
+       > /etc/apt/sources.list.d/mssql-release.list \
+    && apt-get update \
+    && ACCEPT_EULA=Y apt-get install -y \
+       msodbcsql18 \
+       mssql-tools \
+    && rm -rf /var/lib/apt/lists/*
+
+# Добавляем sqlcmd в PATH
+ENV PATH="$PATH:/opt/mssql-tools/bin"
+
+# Скачиваем JDBC драйвер для MS SQL
+RUN curl -L -o /opt/mssql-jdbc.jar https://repo1.maven.org/maven2/com/microsoft/sqlserver/mssql-jdbc/13.2.0.jre11/mssql-jdbc-13.2.0.jre11.jar
+
+# Копируем файлы проекта
+COPY ./datamart /app
+
+# Собираем проект
+RUN sbt clean assembly
+
+# Запуск приложения в режиме API по умолчанию
+CMD ["spark-submit", "--class", "ru.itmo.datamart.Main", "target/scala-2.13/food-datamart.jar", "api"]

@@ -70,6 +70,29 @@ services:
     networks:
       - food-clustering-network
 
+  # Витрина данных на Scala
+  datamart:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.datamart
+    container_name: food-clustering-datamart
+    depends_on:
+      - mssql
+    ports:
+      - "8080:8080"  # Порт для API витрины
+    volumes:
+      - ./data:/app/data  # Для доступа к parquet-файлам
+    env_file:
+      - .env
+    environment:
+      - DB_SERVER=mssql
+      - DB_PORT=1433
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+    networks:
+      - food-clustering-network
+
 networks:
   food-clustering-network:
     driver: bridge

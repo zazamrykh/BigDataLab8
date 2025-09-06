@@ -10,6 +10,7 @@ class ClusteringRequest(BaseModel):
     Request model for clustering.
     """
     use_sample_data: bool = Field(False, description="Whether to use sample data")
+    use_datamart: bool = Field(False, description="Whether to use Data Mart API instead of direct MSSQL access")
 
 
 class ClusteringResponse(BaseModel):

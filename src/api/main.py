@@ -136,7 +136,11 @@ async def cluster_data(
 
         if request.use_sample_data:
             df = data_loader.load_sample_data()
+        elif request.use_datamart:
+            # Загружаем данные через витрину данных
+            df = data_loader.load_data_from_datamart()
         else:
+            # Загружаем данные напрямую из MSSQL
             df = data_loader.load_data_from_mssql()
 
         # Препроцессинг и масштабирование
@@ -160,16 +164,29 @@ async def cluster_data(
         cluster_centers = clusterer.get_cluster_centers()
         cluster_sizes = clusterer.get_cluster_sizes(df_clustered)
 
-        # Сохраняем результаты в MS SQL Server
-        logger.info("Saving results to MS SQL Server...")
+        # Сохраняем результаты
         data_saver = DataSaver(spark)
-        data_saver.save_clustering_results(df_clustered)
 
-        # Получаем имена признаков
-        feature_names = preprocessor.get_feature_columns()
+        if request.use_datamart:
+            # Сохраняем результаты через витрину данных
+            logger.info("Saving results via Data Mart API...")
+            data_saver.save_clustering_results_via_datamart(df_clustered)
 
-        # Сохраняем центры кластеров
-        data_saver.save_cluster_centers(cluster_centers, feature_names)
+            # Получаем имена признаков
+            feature_names = preprocessor.get_feature_columns()
+
+            # Сохраняем центры кластеров через витрину данных
+            data_saver.save_cluster_centers_via_datamart(cluster_centers, feature_names)
+        else:
+            # Сохраняем результаты напрямую в MS SQL Server
+            logger.info("Saving results to MS SQL Server...")
+            data_saver.save_clustering_results(df_clustered)
+
+            # Получаем имена признаков
+            feature_names = preprocessor.get_feature_columns()
+
+            # Сохраняем центры кластеров
+            data_saver.save_cluster_centers(cluster_centers, feature_names)
 
         # Формируем ответ
         return ClusteringResponse(

@@ -3,7 +3,8 @@ Module for loading data from OpenFoodFacts.
 """
 import os
 import urllib.request
-from typing import Optional, Dict
+import requests
+from typing import Optional, Dict, List
 
 import pandas as pd
 from pyspark.sql import DataFrame, SparkSession
@@ -38,6 +39,10 @@ class DataLoader:
         self.mssql_driver = config.get('MSSQL', 'driver')
         self.mssql_input_table = config.get('MSSQL', 'input_table')
         self.mssql_output_table = config.get('MSSQL', 'output_table')
+
+        # Настройки для витрины данных
+        self.datamart_host = config.get('DATAMART', 'host', fallback='datamart')
+        self.datamart_port = config.getint('DATAMART', 'port', fallback=8080)
 
         # Create data directory if it doesn't exist
         if not os.path.exists(self.data_dir):
@@ -197,6 +202,49 @@ class DataLoader:
 
         except Exception as e:
             logger.error(f"Error loading data from MS SQL Server: {e}")
+            raise
+
+    def load_data_from_datamart(self) -> DataFrame:
+        """
+        Load data from Data Mart API.
+
+        Returns:
+            Spark DataFrame with preprocessed data from Data Mart.
+        """
+        logger.info(f"Loading data from Data Mart API: http://{self.datamart_host}:{self.datamart_port}/api/data")
+
+        try:
+            # Отправляем запрос к API витрины данных
+            response = requests.get(f"http://{self.datamart_host}:{self.datamart_port}/api/data")
+
+            if response.status_code != 200:
+                raise Exception(f"Failed to get data from Data Mart API: {response.status_code} {response.text}")
+
+            # Парсим JSON-ответ
+            data = response.json()
+
+            if not data.get("success"):
+                raise Exception(f"Data Mart API returned error: {data.get('message')}")
+
+            # Преобразуем данные в pandas DataFrame
+            pandas_df = pd.DataFrame(data.get("data", []))
+
+            # Преобразуем pandas DataFrame в Spark DataFrame
+            df = self.spark.createDataFrame(pandas_df)
+
+            # Выводим схему данных
+            logger.info("DataFrame schema (loaded from Data Mart API):")
+            df.printSchema()
+            logger.info(f"DataFrame columns: {df.columns[:50]}")
+
+            # Подсчитываем количество записей
+            cnt = df.count()
+            logger.info(f"Data successfully loaded from Data Mart API: {cnt} records")
+
+            return df
+
+        except Exception as e:
+            logger.error(f"Error loading data from Data Mart API: {e}")
             raise
 
     def load_sample_data(self) -> DataFrame:
