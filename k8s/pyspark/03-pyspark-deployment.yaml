@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+  namespace: food-clustering
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app
+  template:
+    metadata:
+      labels:
+        app: app
+    spec:
+      containers:
+      - name: app
+        image: zazamrykh/food-clustering-app
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8000
+          name: http
+        volumeMounts:
+        - name: model-data
+          mountPath: /app/model
+        env:
+        - name: MSSQL_SERVER
+          value: "mssql-service"
+        - name: MSSQL_PORT
+          value: "1433"
+        - name: MSSQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: MSSQL_DATABASE
+        - name: MSSQL_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: MSSQL_USERNAME
+        - name: MSSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: MSSQL_SA_PASSWORD
+      volumes:
+      - name: model-data
+        persistentVolumeClaim:
+          claimName: pyspark-model-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-service
+  namespace: food-clustering
+spec:
+  selector:
+    app: app
+  ports:
+  - port: 8000
+    targetPort: 8000
+    nodePort: 30800
+    name: http
+  type: NodePort

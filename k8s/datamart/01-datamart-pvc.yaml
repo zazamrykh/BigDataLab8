@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: pyspark-model-data
+  name: datamart-data
   namespace: food-clustering
 spec:
   accessModes:

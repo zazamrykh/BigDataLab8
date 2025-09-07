@@ -15,6 +15,7 @@ kubectl apply -f ./02-env-configmap.yaml
 kubectl apply -f ./02-db-secret.yaml
 kubectl apply -f ./02-mssql-init-configmap.yaml
 kubectl apply -f ./03-mssql-deployment.yaml
+kubectl apply -f ./mssql-alias-service.yaml
 
 # Ждем, пока MS SQL Server запустится
 echo "Waiting for MS SQL Server to start..."

@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: datamart
+  namespace: food-clustering
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: datamart
+  template:
+    metadata:
+      labels:
+        app: datamart
+    spec:
+      containers:
+      - name: datamart
+        image: zazamrykh/food-clustering-datamart
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+          name: http
+        volumeMounts:
+        - name: datamart-data
+          mountPath: /app/data
+        env:
+        - name: DB_SERVER
+          value: "mssql-service"
+        - name: DB_PORT
+          value: "1433"
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: MSSQL_DATABASE
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: MSSQL_USERNAME
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: MSSQL_SA_PASSWORD
+      volumes:
+      - name: datamart-data
+        persistentVolumeClaim:
+          claimName: datamart-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: datamart-service
+  namespace: food-clustering
+spec:
+  selector:
+    app: datamart
+  ports:
+  - port: 8080
+    targetPort: 8080
+    nodePort: 30880
+    name: http
+  type: NodePort

@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: datamart-healthcheck
+  namespace: food-clustering
+spec:
+  template:
+    spec:
+      containers:
+      - name: curl
+        image: curlimages/curl:7.82.0
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          echo "Проверка работоспособности API витрины данных..."
+          curl -s http://datamart-service:8080/health
+          echo ""
+          echo "Проверка завершена."
+      restartPolicy: Never
+  backoffLimit: 2

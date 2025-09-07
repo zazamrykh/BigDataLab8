@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pyspark-api-test
+  namespace: food-clustering
+spec:
+  template:
+    spec:
+      containers:
+      - name: curl
+        image: curlimages/curl:7.82.0
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          echo "Testing API health endpoint..."
+          curl -s http://app-service:8000/health
+          echo ""
+          echo "Test completed."
+      restartPolicy: Never
+  backoffLimit: 2
