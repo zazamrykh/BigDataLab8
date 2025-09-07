@@ -31,7 +31,7 @@ kubectl logs $JOB_POD -n food-clustering
 # Проверяем статус Job
 JOB_STATUS=$(kubectl get job datamart-etl -n food-clustering -o jsonpath='{.status.succeeded}')
 
-if [ "$JOB_STATUS" == "1" ]; then
+if [ "$JOB_STATUS" = "1" ]; then
   echo "ETL Job успешно завершен!"
 else
   echo "ETL Job завершился с ошибкой. Проверьте логи."

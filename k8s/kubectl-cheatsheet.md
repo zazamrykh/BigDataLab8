@@ -66,6 +66,9 @@ kubectl delete pod -n food-clustering <имя-пода>
 
 # Удаление всех подов с определенным лейблом
 kubectl delete pod -n food-clustering -l app=mssql
+
+# forecegully
+kubectl delete pod <PODNAME> --grace-period=0 --force --namespace <NAMESPACE>
 ```
 
 ## Работа с другими ресурсами Kubernetes
