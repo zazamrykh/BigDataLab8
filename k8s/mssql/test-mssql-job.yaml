@@ -1,0 +1,37 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mssql-test
+  namespace: food-clustering
+spec:
+  template:
+    spec:
+      containers:
+      - name: mssql-tools
+        image: mcr.microsoft.com/mssql-tools
+        command: ["/bin/bash", "-c"]
+        args:
+        - |
+          echo 'Waiting for MSSQL...'
+          until /opt/mssql-tools/bin/sqlcmd -S mssql-service -U sa -P YourStrong@Passw0rd -Q 'SELECT 1' &>/dev/null; do
+            echo 'MSSQL not ready yet...'
+            sleep 5
+          done
+
+          echo 'MSSQL is ready, running tests'
+
+          echo -e "\nChecking SQL Server version..."
+          /opt/mssql-tools/bin/sqlcmd -S mssql-service -U sa -P YourStrong@Passw0rd -Q "SELECT @@VERSION"
+
+          echo -e "\nChecking food_clustering database..."
+          /opt/mssql-tools/bin/sqlcmd -S mssql-service -U sa -P YourStrong@Passw0rd -Q "SELECT name FROM sys.databases WHERE name = 'food_clustering'"
+
+          echo -e "\nChecking tables in food_clustering database (if it exists)..."
+          /opt/mssql-tools/bin/sqlcmd -S mssql-service -U sa -P YourStrong@Passw0rd -Q "IF DB_ID('food_clustering') IS NOT NULL BEGIN USE food_clustering; SELECT name FROM sys.tables; END"
+
+          echo -e "\nChecking food_products table (if it exists)..."
+          /opt/mssql-tools/bin/sqlcmd -S mssql-service -U sa -P YourStrong@Passw0rd -Q "IF DB_ID('food_clustering') IS NOT NULL AND OBJECT_ID('food_clustering.dbo.food_products') IS NOT NULL BEGIN USE food_clustering; SELECT TOP 5 * FROM food_products; END"
+
+          echo -e "\nDone!"
+      restartPolicy: Never
+  backoffLimit: 4

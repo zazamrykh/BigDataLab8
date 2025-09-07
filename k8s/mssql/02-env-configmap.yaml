@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: env-config
+  namespace: food-clustering
+data:
+  MSSQL_PID: "Developer"
+  DB_SERVER: "mssql-service"
+  DB_PORT: "1433"
+  DB_NAME: "food_clustering"
+  DB_USER: "sa"

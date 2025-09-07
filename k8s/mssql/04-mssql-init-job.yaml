@@ -1,0 +1,37 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mssql-init
+  namespace: food-clustering
+spec:
+  template:
+    spec:
+      containers:
+      - name: mssql-init
+        image: mcr.microsoft.com/mssql-tools
+        command: ["/bin/bash", "-c"]
+        args:
+        - |
+          echo 'Waiting for MSSQL...'
+          until /opt/mssql-tools/bin/sqlcmd -S mssql-service -U sa -P $SA_PASSWORD -Q 'SELECT 1' &>/dev/null; do
+            echo 'MSSQL not ready yet...'
+            sleep 5
+          done
+          echo 'MSSQL is ready, running scripts'
+          /opt/mssql-tools/bin/sqlcmd -S mssql-service -U sa -P $SA_PASSWORD -i /scripts/01_create_database.sql
+          /opt/mssql-tools/bin/sqlcmd -S mssql-service -U sa -P $SA_PASSWORD -i /scripts/02_create_tables.sql
+          /opt/mssql-tools/bin/sqlcmd -S mssql-service -U sa -P $SA_PASSWORD -i /scripts/03_insert_test_data.sql
+        env:
+        - name: SA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: MSSQL_SA_PASSWORD
+        volumeMounts:
+        - name: init-scripts
+          mountPath: /scripts
+      restartPolicy: OnFailure
+      volumes:
+      - name: init-scripts
+        configMap:
+          name: mssql-init-scripts
