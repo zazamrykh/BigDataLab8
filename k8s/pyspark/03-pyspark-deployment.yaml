@@ -43,6 +43,14 @@ spec:
             secretKeyRef:
               name: db-secret
               key: MSSQL_SA_PASSWORD
+        # Добавляем ресурсные ограничения
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "500m"
+          limits:
+            memory: "6Gi"
+            cpu: "1000m"
       volumes:
       - name: model-data
         persistentVolumeClaim:

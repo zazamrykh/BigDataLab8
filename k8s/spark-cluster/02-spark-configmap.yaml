@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spark-config
+  namespace: spark-cluster
+data:
+  spark-defaults.conf: |
+    spark.master                     spark://spark-master:7077
+    spark.driver.memory              4g
+    spark.executor.memory            4g
+    spark.executor.cores             2
+    spark.executor.instances         2
+    spark.serializer                 org.apache.spark.serializer.KryoSerializer
+    spark.sql.shuffle.partitions     100
+    spark.default.parallelism        8

@@ -1,0 +1,50 @@
+# Общие настройки
+namespace: food-clustering
+
+# MS SQL Server
+mssql:
+  image: mcr.microsoft.com/mssql/server:2022-latest
+  storage: 1Gi
+  pid: Developer
+  resources:
+    requests:
+      memory: 2Gi
+      cpu: 500m
+    limits:
+      memory: 4Gi
+      cpu: 1000m
+
+# PySpark API
+pyspark:
+  image: zazamrykh/food-clustering-app
+  storage: 1Gi
+  port: 8000
+  nodePort: 30800
+  resources:
+    requests:
+      memory: 2Gi
+      cpu: 500m
+    limits:
+      memory: 6Gi
+      cpu: 1000m
+
+# Datamart
+datamart:
+  image: zazamrykh/food-clustering-datamart
+  storage: 1Gi
+  port: 8080
+  nodePort: 30880
+  resources:
+    requests:
+      memory: 2Gi
+      cpu: 500m
+    limits:
+      memory: 6Gi
+      cpu: 1000m
+
+# Секреты
+secrets:
+  mssql:
+    database: food_clustering
+    username: sa
+    password: YourStrong@Passw0rd

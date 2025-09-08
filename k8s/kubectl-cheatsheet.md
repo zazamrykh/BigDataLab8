@@ -134,8 +134,8 @@ kubectl get job -n food-clustering <имя-job>
 # Перенаправление порта сервиса на локальный порт
 kubectl port-forward -n food-clustering service/<имя-сервиса> <локальный-порт>:<порт-сервиса>
 
-# Пример: перенаправление порта 8080 сервиса на локальный порт 8080
-kubectl port-forward -n food-clustering service/app-service 8080:8080
+# Пример: перенаправление порта 8000 сервиса на локальный порт 8000
+kubectl port-forward -n food-clustering service/app-service 8000:8000
 ```
 
 ### Просмотр событий в кластере
